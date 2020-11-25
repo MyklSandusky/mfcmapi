@@ -128,6 +128,18 @@ namespace property
 
 			auto prop = property::parseProperty(nullptr);
 			unittest::AreEqualEx(std::wstring(L""), prop.toXML(0));
+
+			auto sprop = SPropValue{PR_SUBJECT_W, 0, {}};
+			sprop.Value.lpszW = const_cast<LPWSTR>(L"hello");
+			property::parseProperty(&sprop, &szProp, &szAltProp);
+			unittest::AreEqualEx(std::wstring(L"hello"), szProp);
+			unittest::AreEqualEx(std::wstring(L"cb: 10 lpb: 680065006C006C006F00"), szAltProp);
+
+			prop = property::parseProperty(&sprop);
+			unittest::AreEqualEx(
+				std::wstring(L"<Value><![CDATA[hello]]></Value>\n"
+							 L"<AltValue cb=\"10\" >680065006C006C006F00</AltValue>\n"),
+				prop.toXML(0));
 		}
 	};
 } // namespace property

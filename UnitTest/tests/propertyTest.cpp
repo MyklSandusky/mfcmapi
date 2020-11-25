@@ -2,9 +2,14 @@
 #include <UnitTest/UnitTest.h>
 #include <core/property/property.h>
 #include <core/property/attributes.h>
+#include <core/property/parseProperty.h>
 
 namespace property
 {
+	// imports for testing
+	std::wstring tagopen(_In_ const std::wstring& szTag, int iIndent);
+	std::wstring tagclose(_In_ const std::wstring& szTag, int iIndent);
+
 	TEST_CLASS(propertyTest)
 	{
 	public:
@@ -104,6 +109,25 @@ namespace property
 				prop.toXML(1));
 			unittest::AreEqualEx(std::wstring(L"2: test; test"), prop.toString());
 			unittest::AreEqualEx(std::wstring(L"2: alttest; alttest"), prop.toAltString());
+		}
+
+		TEST_METHOD(Test_globals)
+		{
+			unittest::AreEqualEx(std::wstring(L"\t\t<hello>"), property::tagopen(L"hello", 2));
+			unittest::AreEqualEx(std::wstring(L"\t\t\t<hello>"), property::tagopen(L"hello", 3));
+			unittest::AreEqualEx(std::wstring(L"\t\t</hello>\n"), property::tagclose(L"hello", 2));
+		}
+
+		TEST_METHOD(Test_parseProperty)
+		{
+			std::wstring szProp;
+			std::wstring szAltProp;
+			property::parseProperty(nullptr, &szProp, &szAltProp);
+			unittest::AreEqualEx(std::wstring(L""), szProp);
+			unittest::AreEqualEx(std::wstring(L""), szAltProp);
+
+			auto prop = property::parseProperty(nullptr);
+			unittest::AreEqualEx(std::wstring(L""), prop.toXML(0));
 		}
 	};
 } // namespace property
